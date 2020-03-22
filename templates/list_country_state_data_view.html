@@ -1,0 +1,50 @@
+{% extends "index.html" %}
+{% load static %}
+{% block mainbody %}
+    <a href="{% url 'covid:list' %}">
+        Go to List of Countries
+    </a><br/>
+    <a href="{% url 'covid:list_country_state' country_id=country.id %}">
+        Go to List of {{ country.country }} States
+    </a><br/>
+    <h3> State Data detail by date</h3>
+    <table class="table table-hover text-center">
+      <thead>
+        <tr>
+          <th scope="col">Confirmed Cases</th>
+          <th scope="col">Deaths</th>
+          <th scope="col">Recovered</th>
+          <th scope="col">Last Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for each in object_list %}
+        <tr>
+            <td>{{ each.confirmed_cases }}</td>
+            <td>{{ each.deaths }}</td>
+            <td>{{ each.recovered }}</td>
+            <td>{{ each.date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+    <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; First</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+        {% endif %}
+    </span>
+    </div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "index.html" %}
+{% load static %}
+{% block css %}
+    <style>
+    .table.table-hover thead th { position: sticky; top: 0; background: azure}
+    </style>
+{% endblock %}
+{% block mainbody %}
+
+    <table class="table table-hover text-center">
+      <thead>
+        <tr>
+          <th scope="col">Country</th>
+          <th scope="col">Affected States</th>
+          <th scope="col">Confirmed Cases</th>
+          <th scope="col">Deaths</th>
+          <th scope="col">Recovered</th>
+          <th scope="col">Last Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for each in countries_data %}
+        <tr>
+            <td>
+                <a href="{% url 'covid:list_country_state' country_id=each.id %}">{{ each.country }}</a>
+            </td>
+            <td>{{ each.affected_states }}</td>
+            <td>{{ each.confirmed_cases }}</td>
+            <td>{{ each.total_deaths }}</td>
+            <td>{{ each.recovered }}</td>
+            <td>{{ each.last_updated }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+{% endblock %}
