@@ -88,7 +88,6 @@ venv.bak/
 /.idea/*
 # mypy 
 .mypy_cache/ 
-*/migrations/*
 # Sublime Text # 
 *.tmlanguage.cache 
 *.tmPreferences.cache 
