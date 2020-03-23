@@ -18,7 +18,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from lib.utils import run_scheduler
+# from lib.utils import run_scheduler
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,4 +27,6 @@ urlpatterns = [
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + \
               static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-run_scheduler()
+#only for produciton
+#for developement run lib.utils.fetch_daily_reports() on console to populate the data
+# run_scheduler()

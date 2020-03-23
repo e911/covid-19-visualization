@@ -17,25 +17,25 @@
         </tr>
       </thead>
       <tbody>
-        {% for each in object_list %}
-        <tr>
-            <td>
-                {% if each.state == '' %}
-                    {{ each.country.country }} -- {{ each.date }}
-                {% else %}
-                    <a href="{% url 'covid:list_country_state_data' country_id=each.country.id state=each.state %}">
-                        {{ each.state }}
-                    </a>
-                {% endif %}
-            </td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
-        {% endfor %}
+{#        {% for each in object_list %}#}
+{#        <tr>#}
+{#            <td>#}
+{#                {% if each.state == '' %}#}
+{#                    {{ each.country.country }} -- {{ each.date }}#}
+{#                {% else %}#}
+{#                    <a href="{% url 'covid:list_country_state_data' country_id=each.country.id state=each.state %}">#}
+{#                        {{ each.state }}#}
+{#                    </a>#}
+{#                {% endif %}#}
+{#            </td>#}
+{#            <td></td>#}
+{#            <td></td>#}
+{#            <td></td>#}
+{#            <td></td>#}
+{#            <td></td>#}
+{#            <td></td>#}
+{#        </tr>#}
+{#        {% endfor %}#}
       </tbody>
     </table>
 

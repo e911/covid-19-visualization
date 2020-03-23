@@ -16,14 +16,14 @@ class DailyDataList(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(DailyDataList, self).get_context_data(**kwargs)
-        context['countries_data'] = CountryModel.objects.values('country').annotate(affected_states=Count('coviddatamodel__state',
+        context['countries_data'] = CountryModel.objects.values('country').annotate(affected_states=Count('citymodel__city',
                                                                                                distinct=True),
-                                                                          total_deaths=Max('coviddatamodel__deaths'),
-                                                                          confirmed_cases=Max(
-                                                                              'coviddatamodel__confirmed_cases'),
-                                                                          recovered=Max(
-                                                                              'coviddatamodel__recovered'),
-                                                                          last_updated=Max('coviddatamodel__date'))\
+                                                                          total_deaths=Sum('citymodel__latest_deaths'),
+                                                                          confirmed_cases=Sum(
+                                                                              'citymodel__latest_confirmed_cases'),
+                                                                          recovered=Sum(
+                                                                              'citymodel__latest_recovered'),
+                                                                          last_updated=Max('citymodel__last_updated'))\
             .values('country', 'affected_states', 'total_deaths', 'confirmed_cases', 'recovered', 'id', 'last_updated')\
             .order_by('-total_deaths')
         return context
