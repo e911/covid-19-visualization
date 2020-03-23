@@ -23,6 +23,6 @@ class CountryContextForTemplateMixin(object):
 
 class CountryStateContextForTemplateMixin(object):
     def dispatch(self, request, *args, **kwargs):
-        state_name = kwargs.get('state')
-        self.state = state_name
+        city_name = kwargs.get('city')
+        self.city = city_name
         return super(CountryStateContextForTemplateMixin, self).dispatch(request, *args, **kwargs)

@@ -22,7 +22,8 @@
         {% for each in countries_data %}
         <tr>
             <td>
-                <a href="{% url 'covid:list_country_state' country_id=each.id %}">{{ each.country }}</a>
+{#                <a href="{% url 'covid:list_country_state' country_id=each.id %}">{{ each.country }}</a>#}
+                <a href="#">{{ each.country }}</a>
             </td>
             <td>{{ each.affected_states }}</td>
             <td>{{ each.confirmed_cases }}</td>

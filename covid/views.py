@@ -36,7 +36,7 @@ class DailyCountryStateList(CountryContextForTemplateMixin, ListView):
     template_name = "list_country_state_view.html"
 
     def get_queryset(self):
-        qs = super(DailyCountryStateList, self).get_queryset().filter(country=self.country).order_by('state', 'date')
+        qs = super(DailyCountryStateList, self).get_queryset().filter(country=self.country).order_by('city', 'date')
         return qs
 
 
@@ -47,6 +47,6 @@ class DailyCountryStateDataList(CountryContextForTemplateMixin, CountryStateCont
     template_name = "list_country_state_data_view.html"
 
     def get_queryset(self):
-        qs = super(DailyCountryStateDataList, self).get_queryset().filter(country=self.country, state=self.state) \
+        qs = super(DailyCountryStateDataList, self).get_queryset().filter(country=self.country, city=self.city) \
             .order_by('date')
         return qs
