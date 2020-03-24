@@ -31,4 +31,4 @@ urlpatterns = [
 #only for produciton
 #for developement run lib.utils.fetch_daily_reports() on console to populate the data
 # run_scheduler()
-# fetch_daily_reports()
+fetch_daily_reports()
