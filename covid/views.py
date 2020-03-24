@@ -11,7 +11,7 @@ from lib.mixins import CountryContextForTemplateMixin
 class DailyDataList(ListView):
     model = CountryModel
     queryset = CountryModel.objects.order_by('-latest_confirmed_cases')
-    paginate_by = 20
+    # paginate_by = 20
     template_name = "listOverallCountryCases.html"
 
     def get_context_data(self, **kwargs):
