@@ -19,10 +19,3 @@ class CountryContextForTemplateMixin(object):
         context['country'] = self.country
         context['country_id'] = self.country.id
         return context
-
-
-class CountryStateContextForTemplateMixin(object):
-    def dispatch(self, request, *args, **kwargs):
-        city_name = kwargs.get('city')
-        self.city = city_name
-        return super(CountryStateContextForTemplateMixin, self).dispatch(request, *args, **kwargs)

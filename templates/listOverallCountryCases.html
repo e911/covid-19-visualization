@@ -1,16 +1,16 @@
 {% extends "index.html" %}
 {% load static %}
+{% block css %}
+    <style>
+    .table.table-hover thead th { position: sticky; top: 0; background: azure}
+    </style>
+{% endblock %}
 {% block mainbody %}
-    <a href="{% url 'covid:list' %}">
-        Go to List of Countries
-    </a><br/>
-    <a href="{% url 'covid:list_country_state' country_id=country.id %}">
-        Go to List of {{ country.country }} Cities
-    </a><br/>
-    <h3> State Data detail by date</h3>
+
     <table class="table table-hover text-center">
       <thead>
         <tr>
+          <th scope="col">Country</th>
           <th scope="col">Confirmed Cases</th>
           <th scope="col">Deaths</th>
           <th scope="col">Recovered</th>
@@ -18,17 +18,20 @@
         </tr>
       </thead>
       <tbody>
-{#        {% for each in object_list %}#}
-{#        <tr>#}
-{#            <td>{{ each.confirmed_cases }}</td>#}
-{#            <td>{{ each.deaths }}</td>#}
-{#            <td>{{ each.recovered }}</td>#}
-{#            <td>{{ each.date }}</td>#}
-{#        </tr>#}
-{#        {% endfor %}#}
+        {% for each in object_list %}
+        <tr>
+            <td>
+{#                <a href="{% url 'covid:list_country_state' country_id=each.id %}">{{ each.country }}</a>#}
+                <a href="#">{{ each.country }}</a>
+            </td>
+            <td>{{ each.latest_confirmed_cases }}</td>
+            <td>{{ each.latest_deaths }}</td>
+            <td>{{ each.latest_recovered }}</td>
+            <td>{{ each.last_updated }}</td>
+        </tr>
+        {% endfor %}
       </tbody>
     </table>
-
 
     <div class="pagination">
     <span class="step-links">

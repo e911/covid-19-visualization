@@ -5,48 +5,27 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
 
 from covid.models import CovidDataModel, CountryModel
-from lib.mixins import CountryContextForTemplateMixin, CountryStateContextForTemplateMixin
+from lib.mixins import CountryContextForTemplateMixin
 
 
 class DailyDataList(ListView):
     model = CountryModel
-    queryset = CountryModel.objects.order_by('-country')
+    queryset = CountryModel.objects.order_by('-latest_confirmed_cases')
     paginate_by = 20
-    template_name = "list_countries.html"
+    template_name = "listOverallCountryCases.html"
 
     def get_context_data(self, **kwargs):
         context = super(DailyDataList, self).get_context_data(**kwargs)
-        context['countries_data'] = CountryModel.objects.values('country').annotate(affected_states=Count('citymodel__city',
-                                                                                               distinct=True),
-                                                                          total_deaths=Sum('citymodel__latest_deaths'),
-                                                                          confirmed_cases=Sum(
-                                                                              'citymodel__latest_confirmed_cases'),
-                                                                          recovered=Sum(
-                                                                              'citymodel__latest_recovered'),
-                                                                          last_updated=Max('citymodel__last_updated'))\
-            .values('country', 'affected_states', 'total_deaths', 'confirmed_cases', 'recovered', 'id', 'last_updated')\
-            .order_by('-total_deaths')
         return context
 
 
-class DailyCountryStateList(CountryContextForTemplateMixin, ListView):
+class DailyCountryList(CountryContextForTemplateMixin, ListView):
     model = CovidDataModel
     queryset = CovidDataModel.objects.all()
     paginate_by = 12
-    template_name = "list_country_state_view.html"
+    template_name = "listDailyCountryCases.html"
 
     def get_queryset(self):
-        qs = super(DailyCountryStateList, self).get_queryset().filter(country=self.country).order_by('city', 'date')
+        qs = super(DailyCountryList, self).get_queryset().filter(country=self.country).order_by('city', 'date')
         return qs
 
-
-class DailyCountryStateDataList(CountryContextForTemplateMixin, CountryStateContextForTemplateMixin, ListView):
-    model = CovidDataModel
-    queryset = CovidDataModel.objects.all()
-    paginate_by = 12
-    template_name = "list_country_state_data_view.html"
-
-    def get_queryset(self):
-        qs = super(DailyCountryStateDataList, self).get_queryset().filter(country=self.country, city=self.city) \
-            .order_by('date')
-        return qs
