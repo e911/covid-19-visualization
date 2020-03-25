@@ -32,7 +32,11 @@ def fetch_daily_reports():
                     else:
                         data = {}
                         if header == ['FIPS', 'Admin2', 'Province_State', 'Country_Region', 'Last_Update', 'Lat',
-                                        'Long_', 'Confirmed', 'Deaths', 'Recovered', 'Active', 'Combined_Key']:
+                                      'Long_', 'Confirmed', 'Deaths', 'Recovered', 'Active',
+                                      'Combined_Key'] or header == ['\ufeffFIPS', 'Admin2', 'Province_State',
+                                                                       'Country_Region', 'Last_Update', 'Lat', 'Long_',
+                                                                       'Confirmed', 'Deaths', 'Recovered', 'Active',
+                                                                       'Combined_Key']:
                             data = parse_new_header(each_row)
                         else:
                             data = parse_old_header(each_row)
