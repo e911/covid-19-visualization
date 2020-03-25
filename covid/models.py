@@ -1,6 +1,7 @@
 from django.db import models
 import datetime
 
+from django.db.models import Sum, F
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -8,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 def get_time():
-    return datetime.date(2000,1,1)
+    return datetime.date(2000, 1, 1)
 
 
 # Create your models here.
@@ -21,6 +22,36 @@ class CountryModel(models.Model):
 
     def __str__(self):
         return f"{self.country}"
+
+    @classmethod
+    def get_total_data(cls):
+        confirmed_cases = 0
+        deaths = 0
+        recovered = 0
+        for each in CountryModel.objects.all():
+            confirmed_cases += each.latest_confirmed_cases
+            deaths += each.latest_deaths
+            recovered += each.latest_recovered
+        date = CountryModel.objects.first().last_updated
+        death_percent = round((deaths/confirmed_cases * 100), 2)
+        recovered_percent = round((recovered / confirmed_cases * 100), 2)
+        return {"cases": confirmed_cases, "deaths": deaths, "recovered": recovered, "date": date,
+                'deaths_percent': death_percent, 'recovered_percent': recovered_percent}
+
+    @classmethod
+    def get_total_data_by_date(cls, date):
+        confirmed_cases = 0
+        deaths = 0
+        recovered = 0
+        for each in CountryModel.objects.filter(coviddatamodel__date=date).annotate(deaths=F('coviddatamodel__deaths'),
+                                                                                    cases=F(
+                                                                                            'coviddatamodel__confirmed_cases'),
+                                                                                    recovered=F(
+                                                                                            'coviddatamodel__recovered')):
+            confirmed_cases += each.latest_confirmed_cases
+            deaths += each.latest_deaths
+            recovered += each.latest_recovered
+        return {"cases": confirmed_cases, "deaths": deaths, "recovered": recovered}
 
 
 class CovidDataModel(models.Model):
