@@ -86,6 +86,7 @@ venv.bak/
 # mkdocs documentation 
 /site 
 /.idea/*
+/_templates/*
 # mypy 
 .mypy_cache/ 
 # Sublime Text # 
