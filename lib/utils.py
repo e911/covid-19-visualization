@@ -2,13 +2,32 @@ import os
 import csv
 import datetime
 
-from django.core.exceptions import ObjectDoesNotExist
+import requests
 from django.utils import timezone
 from django_rq import job
 from redis import Redis
 from rq_scheduler import Scheduler
 
 from covid.models import FetchedDataFiles, CountryModel, CovidDataModel
+
+
+def fetch_data_from_github():
+    github_repo_api_url = 'https://api.github.com/repos/CSSEGISandData/COVID-19/contents/csse_covid_19_data/csse_covid_19_daily_reports/'
+    get_github_response = requests.get(github_repo_api_url)
+    parsed_files_queryset = FetchedDataFiles.objects.values_list('filename', flat=True)
+    for each in get_github_response.json():
+        filename = each['name']
+        if filename == '.gitignore' or filename == 'README.md' or filename in parsed_files_queryset:
+            continue
+        raw_content_url = each['download_url']
+        get_response_content = requests.get(raw_content_url).content.decode('utf-8')
+        get_content_row_list = csv.reader(get_response_content.splitlines(), delimiter=',')
+        rows_list = list(get_content_row_list)
+        with open(f'abs/{filename}', 'w', newline='') as csvfile:
+            data_writer = csv.writer(csvfile)
+            for each in rows_list:
+                data_writer.writerow(each)
+    fetch_daily_reports()
 
 
 # for production only
@@ -34,9 +53,9 @@ def fetch_daily_reports():
                         if header == ['FIPS', 'Admin2', 'Province_State', 'Country_Region', 'Last_Update', 'Lat',
                                       'Long_', 'Confirmed', 'Deaths', 'Recovered', 'Active',
                                       'Combined_Key'] or header == ['\ufeffFIPS', 'Admin2', 'Province_State',
-                                                                       'Country_Region', 'Last_Update', 'Lat', 'Long_',
-                                                                       'Confirmed', 'Deaths', 'Recovered', 'Active',
-                                                                       'Combined_Key']:
+                                                                    'Country_Region', 'Last_Update', 'Lat', 'Long_',
+                                                                    'Confirmed', 'Deaths', 'Recovered', 'Active',
+                                                                    'Combined_Key']:
                             data = parse_new_header(each_row)
                         else:
                             data = parse_old_header(each_row)
