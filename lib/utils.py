@@ -23,7 +23,7 @@ def fetch_data_from_github():
         get_response_content = requests.get(raw_content_url).content.decode('utf-8')
         get_content_row_list = csv.reader(get_response_content.splitlines(), delimiter=',')
         rows_list = list(get_content_row_list)
-        with open(f'abs/{filename}', 'w', newline='') as csvfile:
+        with open(f'lib/dataFiles/csse_covid_19_daily_reports/{filename}', 'w', newline='') as csvfile:
             data_writer = csv.writer(csvfile)
             for each in rows_list:
                 data_writer.writerow(each)
