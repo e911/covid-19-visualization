@@ -19,7 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 # from lib.utils import run_scheduler
-from lib.utils import fetch_data_from_github
+from lib.utils import fetch_data_from_github, fetch_time_series_data_from_github
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,4 +31,5 @@ urlpatterns = [
 #only for produciton
 #for developement run lib.utils.fetch_daily_reports() on console to populate the data
 # run_scheduler()
-fetch_data_from_github()
+# fetch_data_from_github()
+# fetch_time_series_data_from_github()

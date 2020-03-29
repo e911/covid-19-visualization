@@ -1,7 +1,7 @@
 from django.db import models
 import datetime
 
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Count
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -43,6 +43,7 @@ class CountryModel(models.Model):
         confirmed_cases = 0
         deaths = 0
         recovered = 0
+        countrys = 0
         for each in CountryModel.objects.filter(coviddatamodel__date=date).annotate(deaths=F('coviddatamodel__deaths'),
                                                                                     cases=F(
                                                                                             'coviddatamodel__confirmed_cases'),
@@ -51,7 +52,13 @@ class CountryModel(models.Model):
             confirmed_cases += each.latest_confirmed_cases
             deaths += each.latest_deaths
             recovered += each.latest_recovered
-        return {"cases": confirmed_cases, "deaths": deaths, "recovered": recovered}
+            countrys += 1
+        return {"cases": confirmed_cases, "deaths": deaths, "recovered": recovered, 'country': countrys}
+
+    @staticmethod
+    def daterange(start_date, end_date):
+        for n in range(int((end_date - start_date).days)):
+            yield start_date + datetime.timedelta(n)
 
 
 class CovidDataModel(models.Model):

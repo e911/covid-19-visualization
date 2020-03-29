@@ -166,3 +166,55 @@ def parse_new_header(each_row):
 #         interval=21600,  # Time before the function is called again, in seconds
 #         repeat=1
 #     )
+
+
+def fetch_time_series_data_from_github():
+    github_repo_api_url = 'https://api.github.com/repos/CSSEGISandData/COVID-19/contents/csse_covid_19_data/csse_covid_19_time_series/'
+    get_github_response = requests.get(github_repo_api_url)
+    parsed_files_queryset = FetchedDataFiles.objects.values_list('filename', flat=True)
+    file_index = 0
+    for each in get_github_response.json():
+        filename = each['name']
+        if filename == '.gitignore' or filename == 'README.md' or filename in parsed_files_queryset:
+            continue
+        raw_content_url = each['download_url']
+        get_response_content = requests.get(raw_content_url).content.decode('utf-8')
+        get_content_row_list = csv.reader(get_response_content.splitlines(), delimiter=',')
+        rows_list = list(get_content_row_list)
+        get_headers = rows_list[0]
+        get_date_headers = get_headers[4::]
+        parsed_files_queryset = FetchedDataFiles.objects.values_list('filename', flat=True)
+        for each_rows in rows_list[1::]:
+            country = CountryModel.objects.get_or_create(country=each_rows[2])
+            for each_headers_date in get_date_headers:
+                index = 0
+                if each_headers_date not in parsed_files_queryset:
+                    try:
+                        covid_data = CovidDataModel.objects.get(country=country[0], date=parse_time_series_date(each_headers_date))
+                        if file_index == 0:
+                            covid_data.confirmed_cases += int(each_rows[4 + index])
+                        if file_index == 1:
+                            covid_data.deaths += int(each_rows[4 + index])
+                        if file_index == 2:
+                            covid_data.recovered += int(each_rows[4 + index])
+                        covid_data.save()
+                        index +=1
+                    except CovidDataModel.DoesNotExist:
+                        covid_data = CovidDataModel(country=country[0], date=parse_time_series_date(each_headers_date),
+                                                    datetime=parse_time_series_date(each_headers_date),
+                                                    confirmed_cases=int(each_rows[4 + index]))
+                        index +=1
+                        covid_data.save()
+            parsed_files = FetchedDataFiles(filename=each_headers_date)
+            parsed_files.save()
+        file_index += 1
+
+
+def parse_time_series_date(date):
+    try:
+        date = timezone.make_aware(datetime.datetime.strptime(date, "%m/%d/%y"),
+                                   timezone.get_default_timezone())
+        return date
+    except ValueError as error:
+        print(error)
+    return date
