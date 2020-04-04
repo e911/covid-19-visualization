@@ -11,11 +11,12 @@ from lib.mixins import CountryContextForTemplateMixin
 class DailyDataList(ListView):
     model = CountryModel
     queryset = CountryModel.objects.order_by('-latest_confirmed_cases')
-    # paginate_by = 20
+    paginate_by = 10
     template_name = "listOverallCountryCases.html"
 
     def get_context_data(self, **kwargs):
         context = super(DailyDataList, self).get_context_data(**kwargs)
+        context["global_data"] = CountryModel.get_total_data()
         return context
 
 
@@ -30,13 +31,3 @@ class DailyCountryList(CountryContextForTemplateMixin, ListView):
         return qs
 
 
-class NewDailyDataList(ListView):
-    model = CountryModel
-    queryset = CountryModel.objects.order_by('-latest_confirmed_cases')
-    paginate_by = 10
-    template_name = "new_listOverallCountryCases.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(NewDailyDataList, self).get_context_data(**kwargs)
-        context["global_data"] = CountryModel.get_total_data()
-        return context
