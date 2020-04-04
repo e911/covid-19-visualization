@@ -189,7 +189,6 @@ def fetch_time_series_data_from_github():
             index = 0
             country = CountryModel.objects.get_or_create(country=each_rows[1])
             for each_headers_date in get_remaining_date_headers:
-                print(FetchedDataFiles.objects.count(), CountryModel.objects.count(), each_rows[1], index)
                 try:
                     covid_data = CovidDataModel.objects.get(country=country[0],
                                                                date=parse_time_series_date(each_headers_date))
