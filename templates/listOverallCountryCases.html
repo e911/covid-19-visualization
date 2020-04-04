@@ -129,17 +129,17 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            {% for each in object_list %}
+                                            {% for each in latest_country_wise_data %}
                                             <tr>
                                                 <td class="text-center">{{each.country}}</td>
                                                 <td class="text-center">
-                                                    <div class="badge badge-warning">{{each.latest_confirmed_cases}}</div>
+                                                    <div class="badge badge-warning">{{each.confirmed_cases}}</div>
                                                 </td>
                                                 <td class="text-center">
-                                                    <div class="badge badge-danger">{{each.latest_deaths}}</div>
+                                                    <div class="badge badge-danger">{{each.deaths}}</div>
                                                 </td>
                                                 <td class="text-center">
-                                                    <div class="badge badge-success">{{each.latest_recovered}}</div>
+                                                    <div class="badge badge-success">{{each.recovered}}</div>
                                                 </td>
                                             </tr>
                                             {% endfor %}

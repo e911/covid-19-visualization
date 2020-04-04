@@ -1,7 +1,7 @@
 from django.db import models
 import datetime
 
-from django.db.models import Sum, F, Count
+from django.db.models import Sum, F, Count, Max
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -24,18 +24,26 @@ class CountryModel(models.Model):
         return f"{self.country}"
 
     @classmethod
+    def get_all_latest_country_total(cls):
+        return CountryModel.objects.all().values('country').annotate(
+            confirmed_cases=Max('coviddatamodel__confirmed_cases'),
+            deaths=Max('coviddatamodel__deaths'),
+            recovered=Max('coviddatamodel__recovered')).values(
+            'country', 'confirmed_cases', 'deaths', 'recovered').order_by('-confirmed_cases')
+
+    @classmethod
     def get_total_data(cls):
         confirmed_cases = 0
         deaths = 0
         recovered = 0
-        for each in CountryModel.objects.all():
-            confirmed_cases += each.latest_confirmed_cases
-            deaths += each.latest_deaths
-            recovered += each.latest_recovered
-        date = CountryModel.objects.first().last_updated
-        death_percent = round((deaths/confirmed_cases * 100), 2)
+        latest_date = CovidDataModel.objects.last().date
+        for each in CovidDataModel.objects.filter(date=latest_date):
+            confirmed_cases += each.confirmed_cases
+            deaths += each.deaths
+            recovered += each.recovered
+        death_percent = round((deaths / confirmed_cases * 100), 2)
         recovered_percent = round((recovered / confirmed_cases * 100), 2)
-        return {"cases": confirmed_cases, "deaths": deaths, "recovered": recovered, "date": date,
+        return {"cases": confirmed_cases, "deaths": deaths, "recovered": recovered, "date": latest_date,
                 'deaths_percent': death_percent, 'recovered_percent': recovered_percent}
 
     @classmethod
@@ -46,9 +54,9 @@ class CountryModel(models.Model):
         countrys = 0
         for each in CountryModel.objects.filter(coviddatamodel__date=date).annotate(deaths=F('coviddatamodel__deaths'),
                                                                                     cases=F(
-                                                                                            'coviddatamodel__confirmed_cases'),
+                                                                                        'coviddatamodel__confirmed_cases'),
                                                                                     recovered=F(
-                                                                                            'coviddatamodel__recovered')):
+                                                                                        'coviddatamodel__recovered')):
             confirmed_cases += each.latest_confirmed_cases
             deaths += each.latest_deaths
             recovered += each.latest_recovered
