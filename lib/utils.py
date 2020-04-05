@@ -182,6 +182,11 @@ def fetch_time_series_data_from_github():
         get_response_content = requests.get(raw_content_url).content.decode('utf-8')
         get_content_row_list = csv.reader(get_response_content.splitlines(), delimiter=',')
         rows_list = list(get_content_row_list)
+        filename = raw_content_url.split('/')[-1]
+        with open(f'lib/dataFiles/csse_covid_19_daily_reports/{filename}', 'w', newline='') as csvfile:
+            data_writer = csv.writer(csvfile)
+            for each in rows_list:
+                data_writer.writerow(each)
         get_headers = rows_list[0]
         get_date_headers = get_headers[4::]
         get_remaining_date_headers = list(set(get_date_headers) - set(parsed_files_queryset))
@@ -193,18 +198,18 @@ def fetch_time_series_data_from_github():
                     covid_data = CovidDataModel.objects.get(country=country[0],
                                                                date=parse_time_series_date(each_headers_date))
                     if file_index == 0:
-                        covid_data.confirmed_cases += int(each_rows[4 + index])
+                        covid_data.confirmed_cases += int(each_rows[get_headers.index(each_headers_date)])
                     if file_index == 1:
-                        covid_data.deaths += int(each_rows[4 + index])
+                        covid_data.deaths += int(each_rows[get_headers.index(each_headers_date)])
                     if file_index == 2:
-                        covid_data.recovered += int(each_rows[4 + index])
+                        covid_data.recovered += int(each_rows[get_headers.index(each_headers_date)])
                     covid_data.save()
                     index += 1
                 except CovidDataModel.DoesNotExist:
                     covid_data = CovidDataModel(country=country[0],
                                                    date=parse_time_series_date(each_headers_date).date(),
                                                    datetime=parse_time_series_date(each_headers_date),
-                                                   confirmed_cases=int(each_rows[4 + index]))
+                                                   confirmed_cases=int(each_rows[get_headers.index(each_headers_date)]))
                     covid_data.save()
                     index += 1
                 if file_index == 2:

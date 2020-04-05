@@ -12,6 +12,11 @@ def get_time():
     return datetime.date(2000, 1, 1)
 
 
+def daterange(start_date, end_date):
+    for n in range(int((end_date - start_date).days+1)):
+        yield start_date + datetime.timedelta(n)
+
+
 # Create your models here.
 class CountryModel(models.Model):
     country = models.CharField(_('Country'), max_length=70, null=False)
@@ -36,7 +41,7 @@ class CountryModel(models.Model):
         confirmed_cases = 0
         deaths = 0
         recovered = 0
-        latest_date = CovidDataModel.objects.last().date
+        latest_date = CovidDataModel.objects.all().order_by('-date').first().date
         for each in CovidDataModel.objects.filter(date=latest_date):
             confirmed_cases += each.confirmed_cases
             deaths += each.deaths
@@ -47,26 +52,42 @@ class CountryModel(models.Model):
                 'deaths_percent': death_percent, 'recovered_percent': recovered_percent}
 
     @classmethod
-    def get_total_data_by_date(cls, date):
-        confirmed_cases = 0
-        deaths = 0
-        recovered = 0
-        countrys = 0
-        for each in CountryModel.objects.filter(coviddatamodel__date=date).annotate(deaths=F('coviddatamodel__deaths'),
-                                                                                    cases=F(
-                                                                                        'coviddatamodel__confirmed_cases'),
-                                                                                    recovered=F(
-                                                                                        'coviddatamodel__recovered')):
-            confirmed_cases += each.latest_confirmed_cases
-            deaths += each.latest_deaths
-            recovered += each.latest_recovered
-            countrys += 1
-        return {"cases": confirmed_cases, "deaths": deaths, "recovered": recovered, 'country': countrys}
+    def get_bar_graph_data(cls):
+        ordered_queryset = CovidDataModel.objects.all().order_by('-date')
+        start_date = ordered_queryset.last().date
+        end_date = ordered_queryset.first().date
+        cases_data = []
+        deaths_data = []
+        recovered_data = []
+        for date in daterange(start_date, end_date):
+            confirmed_cases = 0
+            deaths = 0
+            recovered = 0
+            for each in CovidDataModel.objects.filter(date=date):
+                confirmed_cases += each.confirmed_cases
+                deaths += each.deaths
+                recovered += each.recovered
+            cases_data.append({'date': date, 'cases': confirmed_cases})
+            deaths_data.append({'date': date, 'deaths': deaths})
+            recovered_data.append({'date': date, 'recovered': recovered})
+        return cases_data, deaths_data, recovered_data
 
-    @staticmethod
-    def daterange(start_date, end_date):
-        for n in range(int((end_date - start_date).days)):
-            yield start_date + datetime.timedelta(n)
+    @classmethod
+    def get_total_data_timeline(cls):
+        timeline_data = {}
+        ordered_queryset = CovidDataModel.objects.all().order_by('-date')
+        start_date = ordered_queryset.last().date
+        end_date = ordered_queryset.first().date
+        for date in daterange(start_date, end_date):
+            data = []
+            for each in CountryModel.objects.filter(coviddatamodel__date=date).annotate(cases=F(
+                    'coviddatamodel__confirmed_cases')).values('country', 'cases'):
+                confirmed_cases = each['cases']
+                country = each['country']
+                data.append({'country': country, 'cases': confirmed_cases})
+            timeline_data.update({str(date): data})
+
+        return timeline_data
 
 
 class CovidDataModel(models.Model):
